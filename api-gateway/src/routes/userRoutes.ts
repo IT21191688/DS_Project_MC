@@ -1,5 +1,5 @@
 import express from "express";
-const { createProxyMiddleware } = require("http-proxy-middleware");
+import { createProxyMiddleware } from "http-proxy-middleware";
 import { proxyTarget } from "../utils/proxyUtils";
 
 const router = express.Router();
@@ -7,11 +7,12 @@ const router = express.Router();
 router.use(
   "/",
   createProxyMiddleware({
-    target: proxyTarget.userService,
+    target: "http://localhost:8001",
     changeOrigin: true,
     pathRewrite: {
-      "^/users": "/",
+      "^/users": "/api/v1",
     },
+    //timeout: 30000, // Increase the timeout value (e.g., 30 seconds)
   })
 );
 

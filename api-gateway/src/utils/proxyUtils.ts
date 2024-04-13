@@ -1,6 +1,6 @@
 const proxyTarget = {
-  courseService: "http://course-management-service:8080",
-  userService: "http://user-service:8081",
+  courseService: "http://localhost:8080",
+  userService: "http://localhost:8001",
 };
 
 export { proxyTarget };
