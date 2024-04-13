@@ -8,12 +8,16 @@ const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const http_proxy_middleware_1 = require("http-proxy-middleware");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Middleware setup
 app.use((0, cors_1.default)());
 app.use((0, helmet_1.default)());
 app.use((0, morgan_1.default)("combined"));
 app.disable("x-powered-by");
+app.use(express_1.default.json());
 const services = [
     {
         route: "/users/api/v1",
@@ -28,41 +32,22 @@ const services = [
         target: "https://your-deployed-service.herokuapp.com/payment/",
     },
 ];
-// Rate limiting configuration
-const rateLimit = 20;
-const interval = 60 * 1000;
-const requestCounts = {};
-setInterval(() => {
-    Object.keys(requestCounts).forEach((ip) => {
-        requestCounts[ip] = 0;
-    });
-}, interval);
-// Rate limiting and timeout middleware
-function rateLimitAndTimeout(req, res, next) {
-    const ip = req.ip;
-    requestCounts[ip] = (requestCounts[ip] || 0) + 1;
-    if (requestCounts[ip] > rateLimit) {
-        return res.status(429).json({
-            code: 429,
-            status: "Error",
-            message: "Rate limit exceeded.",
-            data: null,
+// Authentication Middleware
+function authenticateJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+        const token = authHeader.split(" ")[1];
+        jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || "", (err, decoded) => {
+            if (err) {
+                return res.sendStatus(403);
+            }
+            next();
         });
     }
-    req.setTimeout(15000, () => {
-        res.status(504).json({
-            code: 504,
-            status: "Error",
-            message: "Gateway timeout.",
-            data: null,
-        });
-        req.destroy();
-    });
-    next();
+    else {
+        next();
+    }
 }
-// Apply rate limiting and timeout middleware
-app.use(rateLimitAndTimeout);
-// Configure proxy middleware for each service
 services.forEach(({ route, target }) => {
     const proxyOptions = {
         target,
@@ -71,9 +56,10 @@ services.forEach(({ route, target }) => {
             [`^${route}`]: "",
         },
     };
-    app.use(route, (0, http_proxy_middleware_1.createProxyMiddleware)(proxyOptions));
+    app.use(route, authenticateJWT, (req, res, next) => {
+        (0, http_proxy_middleware_1.createProxyMiddleware)(proxyOptions)(req, res, next);
+    });
 });
-// Route not found handler
 app.use((_req, res) => {
     res.status(404).json({
         code: 404,
@@ -82,7 +68,6 @@ app.use((_req, res) => {
         data: null,
     });
 });
-// Global error handler
 app.use((err, _req, res, _next) => {
     console.error("Global Error Handler:", err);
     res.status(500).json({
@@ -92,7 +77,6 @@ app.use((err, _req, res, _next) => {
         data: null,
     });
 });
-// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Gateway is running on port ${PORT}`);
