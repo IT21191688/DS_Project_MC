@@ -34,7 +34,6 @@ const verifyToken = (token: any) => {
 };
 
 const comparePassword = async (password: string, hash: string) => {
-  // console.log(password + " " + hash);
   return await bcrypt.compare(password, hash);
 };
 

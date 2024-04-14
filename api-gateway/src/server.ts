@@ -9,14 +9,12 @@ dotenv.config();
 
 const app = express();
 
-// Middleware setup
 app.use(cors());
 app.use(helmet());
 app.use(morgan("combined"));
 app.disable("x-powered-by");
 app.use(express.json());
 
-// Define the services to proxy
 interface Service {
   route: string;
   target: string;
@@ -37,7 +35,6 @@ const services: Service[] = [
   },
 ];
 
-// Authentication Middleware
 function authenticateJWT(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
