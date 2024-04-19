@@ -36,7 +36,7 @@ UserRouter.get(
   GetAllUsers
 );
 
-UserRouter.post(
+UserRouter.put(
   "/updateUser",
   UserMiddleware.authorize([
     constants.USER.ROLES.ADMIN,

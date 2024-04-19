@@ -16,7 +16,7 @@ UserRouter.get("/profile", user_middleware_1.default.authorize([
     constants_1.default.USER.ROLES.STUDENT,
 ]), user_controller_1.GetUserProfile);
 UserRouter.get("/getAllUser", user_middleware_1.default.authorize([constants_1.default.USER.ROLES.ADMIN]), user_controller_1.GetAllUsers);
-UserRouter.post("/updateUser", user_middleware_1.default.authorize([
+UserRouter.put("/updateUser", user_middleware_1.default.authorize([
     constants_1.default.USER.ROLES.ADMIN,
     constants_1.default.USER.ROLES.INSTRUCTOR,
     constants_1.default.USER.ROLES.STUDENT,
