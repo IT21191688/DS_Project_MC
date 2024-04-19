@@ -25,6 +25,10 @@ const editUserDetails = async (id: string, updatedDetails: any) => {
   return await User.findByIdAndUpdate(id, updatedDetails, { new: true });
 };
 
+const deleteUserDetails = async (id: string) => {
+  return await User.findByIdAndDelete(id);
+};
+
 const resetPassword = async (email: string, newPassword: string) => {
   const user = await User.findOne({ email });
 
@@ -46,4 +50,5 @@ export default {
   getAllUsers,
   editUserDetails,
   resetPassword,
+  deleteUserDetails,
 };

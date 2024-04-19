@@ -57,7 +57,7 @@ const UserSchema = new mongoose.Schema(
       enum: {
         values: [
           constants.USER.ROLES.ADMIN,
-          constants.USER.ROLES.FACULTY,
+          constants.USER.ROLES.INSTRUCTOR,
           constants.USER.ROLES.STUDENT,
         ],
         message: "Valid roles required",

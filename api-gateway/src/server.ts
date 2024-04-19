@@ -3,9 +3,6 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { createProxyMiddleware, Options } from "http-proxy-middleware";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
 
 const app = express();
 
@@ -13,7 +10,6 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan("combined"));
 app.disable("x-powered-by");
-app.use(express.json());
 
 interface Service {
   route: string;
@@ -35,26 +31,44 @@ const services: Service[] = [
   },
 ];
 
-function authenticateJWT(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization;
+const rateLimit = 20;
+const interval = 60 * 1000;
+const requestCounts: Record<string, number> = {};
 
-  if (authHeader) {
-    const token = authHeader.split(" ")[1];
+setInterval(() => {
+  Object.keys(requestCounts).forEach((ip) => {
+    requestCounts[ip] = 0;
+  });
+}, interval);
 
-    jwt.verify(
-      token,
-      process.env.JWT_SECRET || "",
-      (err: any, decoded: any) => {
-        if (err) {
-          return res.sendStatus(403);
-        }
-        next();
-      }
-    );
-  } else {
-    next();
+function rateLimitAndTimeout(req: Request, res: Response, next: NextFunction) {
+  const ip: any = req.ip;
+
+  requestCounts[ip] = (requestCounts[ip] || 0) + 1;
+
+  if (requestCounts[ip] > rateLimit) {
+    return res.status(429).json({
+      code: 429,
+      status: "Error",
+      message: "Rate limit exceeded.",
+      data: null,
+    });
   }
+
+  req.setTimeout(15000, () => {
+    res.status(504).json({
+      code: 504,
+      status: "Error",
+      message: "Gateway timeout.",
+      data: null,
+    });
+    req.destroy();
+  });
+
+  next();
 }
+
+app.use(rateLimitAndTimeout);
 
 services.forEach(({ route, target }) => {
   const proxyOptions: Options = {
@@ -65,9 +79,7 @@ services.forEach(({ route, target }) => {
     },
   };
 
-  app.use(route, authenticateJWT, (req, res, next) => {
-    createProxyMiddleware(proxyOptions)(req, res, next);
-  });
+  app.use(route, createProxyMiddleware(proxyOptions));
 });
 
 app.use((_req: Request, res: Response) => {
@@ -78,6 +90,7 @@ app.use((_req: Request, res: Response) => {
     data: null,
   });
 });
+
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error("Global Error Handler:", err);
   res.status(500).json({

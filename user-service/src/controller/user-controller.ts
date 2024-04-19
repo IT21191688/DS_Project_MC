@@ -21,7 +21,7 @@ const RegisterUser = async (req: Request, res: Response) => {
   const body: any = req.body;
   const user: any = new User(body.user);
 
-  console.log("hello");
+  // console.log("hello");
 
   try {
     const existingUser = await userService.findByEmail(user.email);
@@ -135,72 +135,141 @@ const GetUserProfile = async (req: Request, res: Response) => {
   }
 };
 
-const GetAllUsers = async (req: Request, res: Response) => {
-  const auth: any = req.auth;
+const GetOneUserDetails = async (req: Request, res: Response) => {
+  try {
+    const auth: any = req.auth;
 
-  const user = await userService.findById(auth._id);
+    const userId: any = req.params.userId;
 
-  if (!user) {
-    throw new NotFoundError("User not found!");
+    const user = await userService.findById(auth._id);
+
+    if (!user) {
+      throw new NotFoundError("User not found!");
+    }
+
+    const user1 = await userService.findById(userId);
+
+    return CustomResponse(
+      res,
+      true,
+      StatusCodes.OK,
+      "Profile fetched successfully!",
+      user1
+    );
+  } catch (error) {
+    ErrorHandler.handle(res, error);
   }
+};
 
-  const users = await userService.getAllUsers();
+const GetAllUsers = async (req: Request, res: Response) => {
+  try {
+    const auth: any = req.auth;
 
-  return CustomResponse(
-    res,
-    true,
-    StatusCodes.OK,
-    "All Users fetched successfully!",
-    users
-  );
+    const user = await userService.findById(auth._id);
+
+    if (!user) {
+      throw new NotFoundError("User not found!");
+    }
+
+    const users = await userService.getAllUsers();
+
+    return CustomResponse(
+      res,
+      true,
+      StatusCodes.OK,
+      "All Users fetched successfully!",
+      users
+    );
+  } catch (error) {
+    ErrorHandler.handle(res, error);
+  }
 };
 
 const EditUserDetails = async (req: Request, res: Response) => {
-  const auth: any = req.auth;
+  try {
+    const auth: any = req.auth;
 
-  const user = await userService.findById(auth._id);
+    const user = await userService.findById(auth._id);
 
-  if (!user) {
-    throw new NotFoundError("User not found!");
+    if (!user) {
+      throw new NotFoundError("User not found!");
+    }
+
+    const userId = auth._id;
+    const updatedDetails = req.body;
+
+    const updatedUser = await userService.editUserDetails(
+      userId,
+      updatedDetails
+    );
+
+    return CustomResponse(
+      res,
+      true,
+      StatusCodes.OK,
+      "Edit User successfully!",
+      updatedUser
+    );
+  } catch (error) {
+    ErrorHandler.handle(res, error);
   }
-
-  const userId = auth._id;
-  const updatedDetails = req.body;
-
-  const updatedUser = await userService.editUserDetails(userId, updatedDetails);
-
-  return CustomResponse(
-    res,
-    true,
-    StatusCodes.OK,
-    "Edit User successfully!",
-    updatedUser
-  );
 };
 
 const EditUserDetailsUserId = async (req: Request, res: Response) => {
-  const auth: any = req.auth;
-  const userId: any = req.params.userId;
+  try {
+    const auth: any = req.auth;
+    const userId: any = req.params.userId;
 
-  // console.log(userId);
+    // console.log(userId);
 
-  const user = await userService.findById(auth._id);
+    const user = await userService.findById(auth._id);
 
-  if (!user) {
-    throw new NotFoundError("User not found!");
+    if (!user) {
+      throw new NotFoundError("User not found!");
+    }
+
+    const updatedDetails = req.body;
+
+    const updatedUser = await userService.editUserDetails(
+      userId,
+      updatedDetails
+    );
+
+    return CustomResponse(
+      res,
+      true,
+      StatusCodes.OK,
+      "Edit User successfully!",
+      updatedUser
+    );
+  } catch (error) {
+    ErrorHandler.handle(res, error);
   }
+};
 
-  const updatedDetails = req.body;
+const DeleteUserDetails = async (req: Request, res: Response) => {
+  try {
+    const auth: any = req.auth;
+    const userId: any = req.params.userId;
 
-  const updatedUser = await userService.editUserDetails(userId, updatedDetails);
+    const user = await userService.findById(auth._id);
 
-  return CustomResponse(
-    res,
-    true,
-    StatusCodes.OK,
-    "Edit User successfully!",
-    updatedUser
-  );
+    if (!user) {
+      throw new NotFoundError("User not found!");
+    }
+
+    const deleteUser = await userService.deleteUserDetails(userId);
+
+    return CustomResponse(
+      res,
+      true,
+      StatusCodes.OK,
+      "Delete User successfully!",
+      deleteUser
+    );
+  } catch (error) {
+    ErrorHandler.handle(res, error);
+  }
 };
 
 export {
@@ -210,4 +279,6 @@ export {
   EditUserDetails,
   EditUserDetailsUserId,
   UserLogin,
+  DeleteUserDetails,
+  GetOneUserDetails,
 };

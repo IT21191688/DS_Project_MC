@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserLogin = exports.EditUserDetailsUserId = exports.EditUserDetails = exports.GetAllUsers = exports.GetUserProfile = exports.RegisterUser = void 0;
+exports.GetOneUserDetails = exports.DeleteUserDetails = exports.UserLogin = exports.EditUserDetailsUserId = exports.EditUserDetails = exports.GetAllUsers = exports.GetUserProfile = exports.RegisterUser = void 0;
 const user_utill_1 = __importDefault(require("../utils/user-utill"));
 const user_service_1 = __importDefault(require("../services/user-service"));
 const user_model_1 = __importDefault(require("../models/user-model"));
@@ -20,7 +20,7 @@ const ErrorHandler_1 = __importDefault(require("../utils/error/ErrorHandler"));
 const RegisterUser = async (req, res) => {
     const body = req.body;
     const user = new user_model_1.default(body.user);
-    console.log("hello");
+    // console.log("hello");
     try {
         const existingUser = await user_service_1.default.findByEmail(user.email);
         if (existingUser) {
@@ -101,38 +101,85 @@ const GetUserProfile = async (req, res) => {
     }
 };
 exports.GetUserProfile = GetUserProfile;
-const GetAllUsers = async (req, res) => {
-    const auth = req.auth;
-    const user = await user_service_1.default.findById(auth._id);
-    if (!user) {
-        throw new NotFoundError_1.default("User not found!");
+const GetOneUserDetails = async (req, res) => {
+    try {
+        const auth = req.auth;
+        const userId = req.params.userId;
+        const user = await user_service_1.default.findById(auth._id);
+        if (!user) {
+            throw new NotFoundError_1.default("User not found!");
+        }
+        const user1 = await user_service_1.default.findById(userId);
+        return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "Profile fetched successfully!", user1);
     }
-    const users = await user_service_1.default.getAllUsers();
-    return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "All Users fetched successfully!", users);
+    catch (error) {
+        ErrorHandler_1.default.handle(res, error);
+    }
+};
+exports.GetOneUserDetails = GetOneUserDetails;
+const GetAllUsers = async (req, res) => {
+    try {
+        const auth = req.auth;
+        const user = await user_service_1.default.findById(auth._id);
+        if (!user) {
+            throw new NotFoundError_1.default("User not found!");
+        }
+        const users = await user_service_1.default.getAllUsers();
+        return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "All Users fetched successfully!", users);
+    }
+    catch (error) {
+        ErrorHandler_1.default.handle(res, error);
+    }
 };
 exports.GetAllUsers = GetAllUsers;
 const EditUserDetails = async (req, res) => {
-    const auth = req.auth;
-    const user = await user_service_1.default.findById(auth._id);
-    if (!user) {
-        throw new NotFoundError_1.default("User not found!");
+    try {
+        const auth = req.auth;
+        const user = await user_service_1.default.findById(auth._id);
+        if (!user) {
+            throw new NotFoundError_1.default("User not found!");
+        }
+        const userId = auth._id;
+        const updatedDetails = req.body;
+        const updatedUser = await user_service_1.default.editUserDetails(userId, updatedDetails);
+        return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "Edit User successfully!", updatedUser);
     }
-    const userId = auth._id;
-    const updatedDetails = req.body;
-    const updatedUser = await user_service_1.default.editUserDetails(userId, updatedDetails);
-    return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "Edit User successfully!", updatedUser);
+    catch (error) {
+        ErrorHandler_1.default.handle(res, error);
+    }
 };
 exports.EditUserDetails = EditUserDetails;
 const EditUserDetailsUserId = async (req, res) => {
-    const auth = req.auth;
-    const userId = req.params.userId;
-    // console.log(userId);
-    const user = await user_service_1.default.findById(auth._id);
-    if (!user) {
-        throw new NotFoundError_1.default("User not found!");
+    try {
+        const auth = req.auth;
+        const userId = req.params.userId;
+        // console.log(userId);
+        const user = await user_service_1.default.findById(auth._id);
+        if (!user) {
+            throw new NotFoundError_1.default("User not found!");
+        }
+        const updatedDetails = req.body;
+        const updatedUser = await user_service_1.default.editUserDetails(userId, updatedDetails);
+        return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "Edit User successfully!", updatedUser);
     }
-    const updatedDetails = req.body;
-    const updatedUser = await user_service_1.default.editUserDetails(userId, updatedDetails);
-    return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "Edit User successfully!", updatedUser);
+    catch (error) {
+        ErrorHandler_1.default.handle(res, error);
+    }
 };
 exports.EditUserDetailsUserId = EditUserDetailsUserId;
+const DeleteUserDetails = async (req, res) => {
+    try {
+        const auth = req.auth;
+        const userId = req.params.userId;
+        const user = await user_service_1.default.findById(auth._id);
+        if (!user) {
+            throw new NotFoundError_1.default("User not found!");
+        }
+        const deleteUser = await user_service_1.default.deleteUserDetails(userId);
+        return (0, responce_1.default)(res, true, http_status_codes_1.StatusCodes.OK, "Delete User successfully!", deleteUser);
+    }
+    catch (error) {
+        ErrorHandler_1.default.handle(res, error);
+    }
+};
+exports.DeleteUserDetails = DeleteUserDetails;
