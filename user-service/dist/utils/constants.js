@@ -9,6 +9,7 @@ const constants = {
             ADMIN: "admin",
             INSTRUCTOR: "instructor",
             STUDENT: "student",
+            USER: "user",
         },
     },
 };

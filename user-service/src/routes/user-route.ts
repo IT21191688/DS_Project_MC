@@ -26,6 +26,7 @@ UserRouter.get(
     constants.USER.ROLES.ADMIN,
     constants.USER.ROLES.INSTRUCTOR,
     constants.USER.ROLES.STUDENT,
+    constants.USER.ROLES.USER,
   ]),
   GetUserProfile
 );
@@ -42,6 +43,7 @@ UserRouter.put(
     constants.USER.ROLES.ADMIN,
     constants.USER.ROLES.INSTRUCTOR,
     constants.USER.ROLES.STUDENT,
+    constants.USER.ROLES.USER,
   ]),
   EditUserDetails
 );

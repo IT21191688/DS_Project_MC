@@ -14,12 +14,14 @@ UserRouter.get("/profile", user_middleware_1.default.authorize([
     constants_1.default.USER.ROLES.ADMIN,
     constants_1.default.USER.ROLES.INSTRUCTOR,
     constants_1.default.USER.ROLES.STUDENT,
+    constants_1.default.USER.ROLES.USER,
 ]), user_controller_1.GetUserProfile);
 UserRouter.get("/getAllUser", user_middleware_1.default.authorize([constants_1.default.USER.ROLES.ADMIN]), user_controller_1.GetAllUsers);
 UserRouter.put("/updateUser", user_middleware_1.default.authorize([
     constants_1.default.USER.ROLES.ADMIN,
     constants_1.default.USER.ROLES.INSTRUCTOR,
     constants_1.default.USER.ROLES.STUDENT,
+    constants_1.default.USER.ROLES.USER,
 ]), user_controller_1.EditUserDetails);
 UserRouter.put("/updateUser/:userId", user_middleware_1.default.authorize([constants_1.default.USER.ROLES.ADMIN]), user_controller_1.EditUserDetailsUserId);
 UserRouter.delete("/deleteUser/:userId", user_middleware_1.default.authorize([constants_1.default.USER.ROLES.ADMIN]), user_controller_1.DeleteUserDetails);

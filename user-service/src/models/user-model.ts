@@ -59,6 +59,7 @@ const UserSchema = new mongoose.Schema(
           constants.USER.ROLES.ADMIN,
           constants.USER.ROLES.INSTRUCTOR,
           constants.USER.ROLES.STUDENT,
+          constants.USER.ROLES.USER,
         ],
         message: "Valid roles required",
       },
